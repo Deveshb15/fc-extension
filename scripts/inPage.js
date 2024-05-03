@@ -16,9 +16,9 @@ const getNumberInKMFormat = (num) => {
 
 
 function extractUsernameFromHover(parentHoverDiv) {
-    let hoverDiv = parentHoverDiv.firstChild.firstChild.firstChild.firstChild;
+    let hoverDiv = parentHoverDiv?.firstChild?.firstChild?.firstChild?.firstChild;
     if (hoverDiv) {
-        let username = hoverDiv.lastChild.firstChild.lastChild.innerText;
+        let username = hoverDiv?.lastChild?.firstChild?.lastChild?.innerText;
         return username.startsWith('@') ? username.slice(1) : username; // Assuming the username starts with '@'
     }
     return null;
@@ -113,12 +113,12 @@ async function populateDataOnProfilePage(username) {
 
         const targetDiv = document.querySelector('.flex.w-full.flex-row.flex-wrap.gap-2');
         if (targetDiv) {
-            if (!targetDiv.nextElementSibling.classList.contains('custom-header')) {
+            if (!targetDiv?.nextElementSibling?.classList?.contains('custom-header')) {
                 let appendDiv = document.createElement("div");
                 appendDiv.classList.add('mt-2', 'flex', 'flex-row', 'gap-2', 'custom-header');
                 appendDiv.innerHTML = `<a tabindex="-1"><span class="mr-1 font-semibold text-default">Loading...</span></a>`
                 // add after appendParentDiv
-                targetDiv.parentNode.insertBefore(appendDiv, targetDiv.nextSibling);
+                targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
 
                 let response = await fetch(`https://extension-backend-steel.vercel.app/user-data/${username}`);
                 console.log("Response: ", response);
@@ -135,7 +135,7 @@ async function populateDataOnProfilePage(username) {
                         `;
                 }
                 // Insert the new div right after the target div
-                targetDiv.parentNode.insertBefore(appendDiv, targetDiv.nextSibling);
+                targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
             }
         } else {
 
@@ -150,8 +150,8 @@ async function populateDataOnProfilePage(username) {
             const appendDiv = document.createElement('div');
             appendDiv.classList.add('custom-user-data');
             appendDiv.classList.add('mt-2', 'flex', 'flex-row', 'gap-2', 'custom-header');
-            appendDiv.innerHTML = `  <span class="net-worth">hoi</span>`;
-            targetDiv.parentNode.insertBefore(appendDiv, targetDiv.nextSibling);
+            appendDiv.innerHTML = `  <span class="net-worth"></span>`;
+            targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
 
 
         }
