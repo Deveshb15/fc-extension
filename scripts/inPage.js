@@ -111,11 +111,16 @@ async function populateDataOnProfilePage(username) {
 
     try {
 
+        function trimAddress(address, startLength = 3, endLength = 3) {
+            return `${address.substring(0, startLength )}...${address.substring(address.length - endLength)}`;
+        }
+        
         const targetDiv = document.querySelector('.flex.w-full.flex-row.flex-wrap.gap-2');
         if (targetDiv) {
             if (!targetDiv?.nextElementSibling?.classList?.contains('custom-header')) {
                 let appendDiv = document.createElement("div");
                 appendDiv.classList.add('mt-2', 'flex', 'flex-row', 'gap-2', 'custom-header');
+                appendDiv.style.marginBottom = '100px'; // Add a margin-bottom of 50px
                 appendDiv.innerHTML = `<a tabindex="-1"><span class="mr-1 font-semibold text-default">Loading...</span></a>`
                 // add after appendParentDiv
                 targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
@@ -125,19 +130,63 @@ async function populateDataOnProfilePage(username) {
                 let data = await response.json();
                 console.log("Data: ", data);
 
+                let address= data?.eth_addresses[0]
+                let shortAddress;
+                if (address){
+                   shortAddress= trimAddress(address)
+                }
+             
+                async function copyAddressToClipboard(address) {
+                    try {
+                        await navigator.clipboard.writeText(address);
+                        console.log('Address copied to clipboard!');
+                        // Optional: Display a message or trigger some action to indicate success.
+                    } catch (err) {
+                        console.error('Failed to copy text to clipboard', err);
+                        // Optional: Display an error message or trigger some action to indicate failure.
+                    }
+                }
+                
                 // Create a new div element to display the fetched data
                 if (data?.total_value !== undefined && data?.total_nft_portfolio !== undefined && data?.pnl !== undefined) {
                     console.log("Data: ", data);
                     appendDiv.innerHTML = `
-                            <span class="net-worth">Net Worth: $${getNumberInKMFormat(data.total_value)}</span>
-                            <span class="pnl" style="color: ${data.pnl > 0 ? 'green' : 'red'}">${data.pnl.toFixed(2)}</span>
-                            <span class="nft-portfolio">NFTs: $${getNumberInKMFormat(data.total_nft_portfolio)}</span>
-                        `;
+                    <div style="width: 510px; height: 82px; position: absolute; display: flex; flex-direction: row; justify-content: space-evenly; align-items: center; margin-bottom:20px; gap: 0px; border-radius: 15px; opacity: 1; background-color: #281B37;">
+                        <div style="display: flex; flex-direction: column; cursor: pointer;" onclick="(${copyAddressToClipboard(address)})">
+                        <span style="display: flex; flex-direction: row;">${shortAddress}   <svg width="16" height="16" viewBox="0 0 24 24" style="fill: #86949F; margin-left: 8px;" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19,21H9a2,2,0,0,1-2-2V7H5A2,2,0,0,0,3,9V19a4,4,0,0,0,4,4H17a2,2,0,0,0,2-2V17h2v2A2,2,0,0,1,19,21Z"/>
+                        <path d="M21,5H11A2,2,0,0,0,9,7V17a2,2,0,0,0,2,2h10a2,2,0,0,0,2-2V7A2,2,0,0,0,21,5Zm-1,5H12V8h8Z"/>
+                    </svg> </span>
+                        <span style="color:#86949F">Address</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column;">
+                            <span> $${getNumberInKMFormat(data.total_value)}</span>
+                            <span style="color:#86949F">Tokens</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column;">
+                            <span>$${getNumberInKMFormat(data.total_nft_portfolio)}</span>
+                            <span style="color:#86949F">NFTs</span>
+                        </div>
+                        <div style="display: flex; flex-direction: column;">
+                            <div style="display:flex;">
+                            <img src="${data.top_5_channels[0].image_url}" style="height: 18px; width: 18px; border-radius: 50%; margin-right:3px;" alt="Image description 1">
+                            <span style="margin-right:8px;">/${data.top_5_channels[0].name}</span>
+                            <img src="${data.top_5_channels[1].image_url}" style="height: 18px; width: 18px; border-radius: 50%; margin-right:3px;" alt="Image description 2">
+                            <span style="margin-right:8px;">/${data.top_5_channels[1].name}</span>
+                            </div>
+                            <span style="color:#86949F">Active Channels</span>
+                        </div>
+                        </div>
+                    
+                    `;
+    
                 }
                 // Insert the new div right after the target div
                 targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
             }
         } else {
+            // <img src="${data.top_5_channels[2].image_url}" style="height: 18px; width: 18px; border-radius: 50%; margin-right:3px;" alt="Image description 3">
+            // <span>/${data.top_5_channels[2].name}</span>
 
             console.error('The specified div element not found on the page.');
         }
