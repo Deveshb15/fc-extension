@@ -8,9 +8,6 @@
         "32": "icons/icon32.png",
         "128": "icons/icon128.png"
     },
-    "permissions": [
-        "tabs"
-    ],
     "action": {
         "default_popup": "popup.html",
         "default_icon": {
