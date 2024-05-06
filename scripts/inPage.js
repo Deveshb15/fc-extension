@@ -76,6 +76,9 @@ async function onHoverData(username) {
                         console.log("Response: ", response);
                         let data = await response.json();
                         console.log("Data: ", data);
+                        if(data?.error){
+                            appendDiv.innerHTML = ''
+                        }
                         if (data?.total_value !== undefined && data?.total_nft_portfolio !== undefined && data?.pnl !== undefined) {
                             appendDiv.innerHTML = `<a tabindex="-1"><span class="mr-1 font-semibold text-default">$${getNumberInKMFormat(data?.total_value)}</span><span style="color: ${data?.pnl > 0 ? 'green' : 'red'} " class="mr-1 text-sm ">${data?.pnl?.toFixed(2)}</span> <span class="text-muted text-semibold">Tokens</span></a><a tabindex="-1"><span class="mr-1 font-semibold text-default">$${getNumberInKMFormat(data?.total_nft_portfolio)}</span><span class="text-muted text-semibold">NFTs</span></a>`
                         }
@@ -84,12 +87,6 @@ async function onHoverData(username) {
                         if (appendParentDiv) {
                             console.log('inside the target div');
                             // const appendDiv = document.createElement('div');
-                            appendDiv.classList.add('custom-user-data');
-                            appendDiv.classList.add('mt-2', 'flex', 'flex-row', 'gap-2', 'custom-header');
-                            appendDiv.innerHTML = `  <span class="net-worth"></span>`;
-                            targetDiv.parentNode.insertBefore(appendDiv, targetDiv.nextSibling);
-
-
                         }
 
                         console.error("Error: ", error);
@@ -129,7 +126,12 @@ async function populateDataOnProfilePage(username) {
                 console.log("Response: ", response);
                 let data = await response.json();
                 console.log("Data: ", data);
-
+                if(data?.error){
+                    console.log('inside data error')
+                    appendDiv.innerHTML = '';
+                    appendDiv.style.marginBottom = ''; // Add a margin-bottom of 50px
+                    return ;
+                }
                 let address= data?.eth_addresses[0]
                 let shortAddress;
                 if (address){
@@ -193,17 +195,17 @@ async function populateDataOnProfilePage(username) {
 
     } catch (error) {
         console.log(error.message)
-        const targetDiv = document.querySelector('.flex.w-full.flex-row.flex-wrap.gap-2');
-        if (targetDiv) {
-            console.log('inside the target div');
-            const appendDiv = document.createElement('div');
-            appendDiv.classList.add('custom-user-data');
-            appendDiv.classList.add('mt-2', 'flex', 'flex-row', 'gap-2', 'custom-header');
-            appendDiv.innerHTML = `  <span class="net-worth"></span>`;
-            targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
+        // const targetDiv = document.querySelector('.flex.w-full.flex-row.flex-wrap.gap-2');
+        // if (targetDiv) {
+        //     console.log('inside the target div');
+        //     const appendDiv = document.createElement('div');
+        //     appendDiv.classList.add('custom-user-data');
+        //     appendDiv.classList.add('mt-2', 'flex', 'flex-row', 'gap-2', 'custom-header');
+        //     appendDiv.innerHTML = `  <span class="net-worth"></span>`;
+        //     targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
 
 
-        }
+        // }
         console.error("Error fetching profile data:", error);
     }
 
