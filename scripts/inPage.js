@@ -45,6 +45,16 @@ async function onChange() {
     }
 }
 
+function truncateString(str) {
+    // Check if the string length exceeds the maxLength
+    if (str.length > 15) {
+       return `${str.substring(0, 15)}...`;
+    }
+    // If the string is not longer than maxLength, return it as is
+    return str;
+   }
+
+  
 async function onHoverData(username) {
     console.log("URL CHANGED");
     let parentHoverDiv = document.querySelector('[data-radix-popper-content-wrapper]');
@@ -117,7 +127,7 @@ async function populateDataOnProfilePage(username) {
             if (!targetDiv?.nextElementSibling?.classList?.contains('custom-header')) {
                 let appendDiv = document.createElement("div");
                 appendDiv.classList.add('mt-2', 'flex', 'flex-row', 'gap-2', 'custom-header');
-                appendDiv.style.marginBottom = '100px'; // Add a margin-bottom of 50px
+                appendDiv.style.marginBottom = '100px'; 
                 appendDiv.innerHTML = `<a tabindex="-1"><span class="mr-1 font-semibold text-default">Loading...</span></a>`
                 // add after appendParentDiv
                 targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
@@ -129,7 +139,7 @@ async function populateDataOnProfilePage(username) {
                 if(data?.error){
                     console.log('inside data error')
                     appendDiv.innerHTML = '';
-                    appendDiv.style.marginBottom = ''; // Add a margin-bottom of 50px
+                    appendDiv.style.marginBottom = ''; 
                     return ;
                 }
                 let address= data?.eth_addresses[0]
@@ -137,11 +147,12 @@ async function populateDataOnProfilePage(username) {
                 if (address){
                    shortAddress= trimAddress(address)
                 }
+                
              
                 async function copyAddressToClipboard(address) {
                     try {
+                        console.log('copying address');
                         await navigator.clipboard.writeText(address);
-                        console.log('Address copied to clipboard!');
                         // Optional: Display a message or trigger some action to indicate success.
                     } catch (err) {
                         console.error('Failed to copy text to clipboard', err);
@@ -172,13 +183,14 @@ async function populateDataOnProfilePage(username) {
                         <div style="display: flex; flex-direction: column;">
                             <div style="display:flex;">
                             <img src="${data.top_5_channels[0].image_url}" style="height: 18px; width: 18px; border-radius: 50%; margin-right:3px;" alt="Image description 1">
-                            <span style="margin-right:8px;">/${data.top_5_channels[0].name}</span>
+                            <span style="margin-right:8px;">/${data.top_5_channels[0].name.length> 15 ? truncateString(data.top_5_channels[0].name): data.top_5_channels[0].name}</span>
                             <img src="${data.top_5_channels[1].image_url}" style="height: 18px; width: 18px; border-radius: 50%; margin-right:3px;" alt="Image description 2">
-                            <span style="margin-right:8px;">/${data.top_5_channels[1].name}</span>
+                            <span style="margin-right:8px;">/${data.top_5_channels[1].name.length> 15 ? truncateString(data.top_5_channels[1].name): data.top_5_channels[1].name}</span>
                             </div>
                             <span style="color:#86949F">Active Channels</span>
                         </div>
                         </div>
+
                     
                     `;
     
