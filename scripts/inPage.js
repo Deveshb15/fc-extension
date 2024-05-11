@@ -34,7 +34,6 @@ async function onChange() {
 
     if (match) {
         let username = match[1]; // Capture the username part of the URL path
-        console.log("USER NAME", username)
         setTimeout(() => {
             populateDataOnProfilePage(username);
         }, 2000);
@@ -60,7 +59,6 @@ function truncateString(str) {
 
   
 async function onHoverData(username) {
-    console.log("URL CHANGED");
     let parentHoverDiv = document.querySelector('[data-radix-popper-content-wrapper]');
 
     if (parentHoverDiv) {
@@ -72,7 +70,6 @@ async function onHoverData(username) {
             if (!appendParentDiv.querySelector('.custom-header')) {
 
                 // let username = hoverDiv?.lastChild?.firstChild?.lastChild?.innerText
-                console.log("Username: ", username);
 
                 observer.disconnect(); // Stop observing
 
@@ -85,11 +82,8 @@ async function onHoverData(username) {
                 // https://extension-backend-steel.vercel.app/user-data/prberg
                 if (username?.length > 0) {
                     try {
-                        console.log("Fetching data for: ", username);
                         let response = await fetch(`https://extension-backend-steel.vercel.app/user-data/${username}`);
-                        console.log("Response: ", response);
                         let data = await response.json();
-                        console.log("Data: ", data);
                         if (data?.error) {
                             appendDiv.innerHTML = ''
                         }
@@ -98,11 +92,6 @@ async function onHoverData(username) {
                         }
 
                     } catch (error) {
-                        if (appendParentDiv) {
-                            console.log('inside the target div');
-                            // const appendDiv = document.createElement('div');
-                        }
-
                         console.error("Error: ", error);
                     }
                 }
@@ -116,8 +105,6 @@ async function onHoverData(username) {
 }
 
 async function populateDataOnProfilePage(username) {
-    console.log("Populating profile page for username:", username);
-
     observer.disconnect(); // Stop observing to avoid recursion due to DOM changes.
 
     try {
@@ -130,7 +117,6 @@ async function populateDataOnProfilePage(username) {
         if (targetDiv) {
 
             let last_username = localStorage.getItem('username');
-            console.log("Last Username: ", last_username);
             if (last_username !== username) {
                 if(targetDiv?.nextElementSibling?.classList?.contains(`custom-header-${last_username}`)){
                     targetDiv?.nextElementSibling?.remove();
@@ -146,11 +132,10 @@ async function populateDataOnProfilePage(username) {
                 targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
 
                 let response = await fetch(`https://extension-backend-steel.vercel.app/user-data/${username}`);
-                console.log("Response: ", response);
+                // console.log("Response: ", response);
                 let data = await response.json();
-                console.log("Data: ", data);
+                // console.log("Data: ", data);
                 if (data?.error) {
-                    console.log('inside data error')
                     appendDiv.innerHTML = '';
                     appendDiv.style.marginBottom = ''; // Add a margin-bottom of 50px
                     return;
@@ -173,7 +158,6 @@ async function populateDataOnProfilePage(username) {
 
                 // Create a new div element to display the fetched data
                 if (data?.total_value !== undefined && data?.total_nft_portfolio !== undefined && data?.pnl !== undefined) {
-                    console.log("Data: ", data);
                     appendDiv.innerHTML = `
                     <div style="width: 510px; height: 82px; position: absolute; display: flex; flex-direction: row; justify-content: space-evenly; align-items: center; margin-bottom:20px; gap: 0px; border-radius: 15px; opacity: 1; background-color: #281B37;">
                         <div style="display: flex; flex-direction: column; cursor: pointer;" onclick="(${copyAddressToClipboard(address)})">
