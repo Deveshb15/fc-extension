@@ -29,8 +29,12 @@ async function onChange() {
     // Check if the current page is a user profile page by checking the URL path.
     // Assuming profile page URL pattern is "/username"
     let match = urlPath.match(/^\/([^\/]+)(\/.*)?$/);
+
+    // run everytime the urlPath changes
+
     if (match) {
         let username = match[1]; // Capture the username part of the URL path
+        console.log("USER NAME", username)
         setTimeout(() => {
             populateDataOnProfilePage(username);
         }, 2000);
@@ -76,7 +80,7 @@ async function onHoverData(username) {
                         console.log("Response: ", response);
                         let data = await response.json();
                         console.log("Data: ", data);
-                        if(data?.error){
+                        if (data?.error) {
                             appendDiv.innerHTML = ''
                         }
                         if (data?.total_value !== undefined && data?.total_nft_portfolio !== undefined && data?.pnl !== undefined) {
@@ -109,14 +113,23 @@ async function populateDataOnProfilePage(username) {
     try {
 
         function trimAddress(address, startLength = 3, endLength = 3) {
-            return `${address.substring(0, startLength )}...${address.substring(address.length - endLength)}`;
+            return `${address.substring(0, startLength)}...${address.substring(address.length - endLength)}`;
         }
-        
+
         const targetDiv = document.querySelector('.flex.w-full.flex-row.flex-wrap.gap-2');
         if (targetDiv) {
-            if (!targetDiv?.nextElementSibling?.classList?.contains('custom-header')) {
+
+            let last_username = localStorage.getItem('username');
+            console.log("Last Username: ", last_username);
+            if (last_username !== username) {
+                if(targetDiv?.nextElementSibling?.classList?.contains(`custom-header-${last_username}`)){
+                    targetDiv?.nextElementSibling?.remove();
+                }
+            }
+
+            if (!targetDiv?.nextElementSibling?.classList?.contains(`custom-header-${username}`)) {
                 let appendDiv = document.createElement("div");
-                appendDiv.classList.add('mt-2', 'flex', 'flex-row', 'gap-2', 'custom-header');
+                appendDiv.classList.add('mt-2', 'flex', 'flex-row', 'gap-2', `custom-header-${username}`, 'custom-header');
                 appendDiv.style.marginBottom = '100px'; // Add a margin-bottom of 50px
                 appendDiv.innerHTML = `<a tabindex="-1"><span class="mr-1 font-semibold text-default">Loading...</span></a>`
                 // add after appendParentDiv
@@ -126,18 +139,18 @@ async function populateDataOnProfilePage(username) {
                 console.log("Response: ", response);
                 let data = await response.json();
                 console.log("Data: ", data);
-                if(data?.error){
+                if (data?.error) {
                     console.log('inside data error')
                     appendDiv.innerHTML = '';
                     appendDiv.style.marginBottom = ''; // Add a margin-bottom of 50px
-                    return ;
+                    return;
                 }
-                let address= data?.eth_addresses[0]
+                let address = data?.eth_addresses[0]
                 let shortAddress;
-                if (address){
-                   shortAddress= trimAddress(address)
+                if (address) {
+                    shortAddress = trimAddress(address)
                 }
-             
+
                 async function copyAddressToClipboard(address) {
                     try {
                         await navigator.clipboard.writeText(address);
@@ -148,7 +161,7 @@ async function populateDataOnProfilePage(username) {
                         // Optional: Display an error message or trigger some action to indicate failure.
                     }
                 }
-                
+
                 // Create a new div element to display the fetched data
                 if (data?.total_value !== undefined && data?.total_nft_portfolio !== undefined && data?.pnl !== undefined) {
                     console.log("Data: ", data);
@@ -181,31 +194,17 @@ async function populateDataOnProfilePage(username) {
                         </div>
                     
                     `;
-    
+
                 }
                 // Insert the new div right after the target div
                 targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
+                localStorage.setItem('username', username);
             }
         } else {
-            // <img src="${data.top_5_channels[2].image_url}" style="height: 18px; width: 18px; border-radius: 50%; margin-right:3px;" alt="Image description 3">
-            // <span>/${data.top_5_channels[2].name}</span>
-
             console.error('The specified div element not found on the page.');
         }
 
     } catch (error) {
-        console.log(error.message)
-        // const targetDiv = document.querySelector('.flex.w-full.flex-row.flex-wrap.gap-2');
-        // if (targetDiv) {
-        //     console.log('inside the target div');
-        //     const appendDiv = document.createElement('div');
-        //     appendDiv.classList.add('custom-user-data');
-        //     appendDiv.classList.add('mt-2', 'flex', 'flex-row', 'gap-2', 'custom-header');
-        //     appendDiv.innerHTML = `  <span class="net-worth"></span>`;
-        //     targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
-
-
-        // }
         console.error("Error fetching profile data:", error);
     }
 
