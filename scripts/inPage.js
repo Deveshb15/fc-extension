@@ -4,6 +4,22 @@ let observer = new MutationObserver(() => {
 
 observer.observe(document, { subtree: true, childList: true });
 
+// let currentUrl = window.location.href;
+
+// // Function to check if the URL has changed
+// function checkUrlChange() {
+//     const newUrl = window.location.href;
+//     if (currentUrl!== newUrl) {
+//         console.log('Checking URL change');
+
+//         currentUrl = newUrl;
+//         onChange(); // Call your function when the URL changes
+//     }
+// }
+
+// // Use setInterval to periodically check for URL changes
+// const intervalId = setInterval(checkUrlChange, 500); // Check every 500 milliseconds
+
 const getNumberInKMFormat = (num) => {
     if (num > 999 && num < 1000000) {
         return (num / 1000).toFixed(1) + 'K'; // convert to K for number from > 1000 < 1 million
@@ -37,6 +53,7 @@ async function onChange() {
     }
 
     let parentHoverDiv = document.querySelector('[data-radix-popper-content-wrapper]');
+
     if (parentHoverDiv) {
         let username = extractUsernameFromHover(parentHoverDiv);
         if (username) {
@@ -47,8 +64,8 @@ async function onChange() {
 
 function truncateString(str) {
     // Check if the string length exceeds the maxLength
-    if (str.length > 15) {
-       return `${str.substring(0, 15)}...`;
+    if (str.length > 10) {
+       return `${str.substring(0, 10)}...`;
     }
     // If the string is not longer than maxLength, return it as is
     return str;
@@ -94,11 +111,6 @@ async function onHoverData(username) {
                         }
 
                     } catch (error) {
-                        if (appendParentDiv) {
-                            console.log('inside the target div');
-                            // const appendDiv = document.createElement('div');
-                        }
-
                         console.error("Error: ", error);
                     }
                 }
@@ -133,7 +145,7 @@ async function populateDataOnProfilePage(username) {
                 targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
 
                 let response = await fetch(`https://extension-backend-steel.vercel.app/user-data/${username}`);
-                console.log("Response: ", response);
+                // console.log("Response: ", response);
                 let data = await response.json();
                 console.log("Data: ", data);
                 if(data?.error){
@@ -183,9 +195,9 @@ async function populateDataOnProfilePage(username) {
                         <div style="display: flex; flex-direction: column;">
                             <div style="display:flex;">
                             <img src="${data.top_5_channels[0].image_url}" style="height: 18px; width: 18px; border-radius: 50%; margin-right:3px;" alt="Image description 1">
-                            <span style="margin-right:8px;">/${data.top_5_channels[0].name.length> 15 ? truncateString(data.top_5_channels[0].name): data.top_5_channels[0].name}</span>
+                            <span style="margin-right:8px;">/${data.top_5_channels[0].id ? data.top_5_channels[0].id : data.top_5_channels[0].name.length> 10 ? truncateString(data.top_5_channels[0].name): data.top_5_channels[0].name}</span>
                             <img src="${data.top_5_channels[1].image_url}" style="height: 18px; width: 18px; border-radius: 50%; margin-right:3px;" alt="Image description 2">
-                            <span style="margin-right:8px;">/${data.top_5_channels[1].name.length> 15 ? truncateString(data.top_5_channels[1].name): data.top_5_channels[1].name}</span>
+                            <span style="margin-right:8px;">/${data.top_5_channels[1].id ? data.top_5_channels[1].id :data.top_5_channels[1].name.length> 10 ? truncateString(data.top_5_channels[1].name): data.top_5_channels[1].name}</span>
                             </div>
                             <span style="color:#86949F">Active Channels</span>
                         </div>
@@ -199,25 +211,11 @@ async function populateDataOnProfilePage(username) {
                 targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
             }
         } else {
-            // <img src="${data.top_5_channels[2].image_url}" style="height: 18px; width: 18px; border-radius: 50%; margin-right:3px;" alt="Image description 3">
-            // <span>/${data.top_5_channels[2].name}</span>
-
             console.error('The specified div element not found on the page.');
         }
 
     } catch (error) {
         console.log(error.message)
-        // const targetDiv = document.querySelector('.flex.w-full.flex-row.flex-wrap.gap-2');
-        // if (targetDiv) {
-        //     console.log('inside the target div');
-        //     const appendDiv = document.createElement('div');
-        //     appendDiv.classList.add('custom-user-data');
-        //     appendDiv.classList.add('mt-2', 'flex', 'flex-row', 'gap-2', 'custom-header');
-        //     appendDiv.innerHTML = `  <span class="net-worth"></span>`;
-        //     targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
-
-
-        // }
         console.error("Error fetching profile data:", error);
     }
 
