@@ -121,6 +121,66 @@ async function onHoverData(username) {
     }
 }
 
+// First, let's modify the copyAddressToClipboard function to be available in the global scope
+// Add this near the top of the file, with the other function declarations
+function copyAddressToClipboard(address) {
+    try {
+        navigator.clipboard.writeText(address);
+        // Optional: You could add a visual feedback here
+        console.log('Address copied successfully');
+    } catch (err) {
+        console.error('Failed to copy text to clipboard', err);
+    }
+}
+
+// Add this function near the top of the file with other utility functions
+function showToast(message, duration = 2000) {
+    // Remove existing toast if any
+    const existingToast = document.querySelector('.copy-toast');
+    if (existingToast) {
+        existingToast.remove();
+    }
+
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = 'copy-toast';
+    toast.textContent = message;
+    
+    // Style the toast - modified for top positioning
+    Object.assign(toast.style, {
+        position: 'fixed',
+        top: '20px',  // Changed from bottom to top
+        left: '50%',
+        transform: 'translateX(-50%)',
+        backgroundColor: '#281B37',
+        color: 'white',
+        padding: '12px 24px',
+        borderRadius: '8px',
+        zIndex: '10000',
+        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+        transition: 'all 0.3s ease-in-out',
+        fontSize: '14px',
+        opacity: '0',
+        transform: 'translate(-50%, -20px)'  // Start slightly higher
+    });
+
+    // Add to document
+    document.body.appendChild(toast);
+
+    // Trigger animation
+    setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translate(-50%, 0)';  // Slide down to final position
+    }, 50);
+
+    // Remove after duration
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translate(-50%, -20px)';  // Slide up when disappearing
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
 async function populateDataOnProfilePage(username) {
     observer.disconnect(); // Stop observing to avoid recursion due to DOM changes.
 
@@ -162,22 +222,12 @@ async function populateDataOnProfilePage(username) {
                 if (address) {
                     shortAddress = trimAddress(address)
                 }
-                async function copyAddressToClipboard(address) {
-                    try {
-                        console.log('copying address');
-                        await navigator.clipboard.writeText(address);
-                        // Optional: Display a message or trigger some action to indicate success.
-                    } catch (err) {
-                        console.error('Failed to copy text to clipboard', err);
-                        // Optional: Display an error message or trigger some action to indicate failure.
-                    }
-                }
 
                 // Create a new div element to display the fetched data
                 if (data?.total_value !== undefined && data?.total_nft_portfolio !== undefined && data?.pnl !== undefined) {
                     appendDiv.innerHTML = `
                     <div style="width: 510px; height: 82px; position: absolute; display: flex; flex-direction: row; justify-content: space-evenly; align-items: center; margin-bottom:20px; gap: 0px; border-radius: 15px; opacity: 1; background-color: #281B37;">
-                        <div style="display: flex; flex-direction: column; cursor: pointer;" onclick="(${copyAddressToClipboard(address)})">
+                        <div class="address-copy" style="display: flex; flex-direction: column; cursor: pointer;">
                         <span style="display: flex; flex-direction: row;">${shortAddress}   <svg width="16" height="16" viewBox="0 0 24 24" style="fill: #86949F; margin-left: 8px;" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19,21H9a2,2,0,0,1-2-2V7H5A2,2,0,0,0,3,9V19a4,4,0,0,0,4,4H17a2,2,0,0,0,2-2V17h2v2A2,2,0,0,1,19,21Z"/>
                         <path d="M21,5H11A2,2,0,0,0,9,7V17a2,2,0,0,0,2,2h10a2,2,0,0,0,2-2V7A2,2,0,0,0,21,5Zm-1,5H12V8h8Z"/>
@@ -206,6 +256,20 @@ async function populateDataOnProfilePage(username) {
                     
                     `;
 
+                    // Add click handler after setting innerHTML
+                    const copyButton = appendDiv.querySelector('.address-copy');
+                    copyButton.addEventListener('click', () => {
+                        if (address) {
+                            navigator.clipboard.writeText(address)
+                                .then(() => {
+                                    showToast('Address copied to clipboard! 📋');
+                                })
+                                .catch(err => {
+                                    console.error('Failed to copy text to clipboard', err);
+                                    showToast('Failed to copy address 😢');
+                                });
+                        }
+                    });
                 }
                 // Insert the new div right after the target div
                 targetDiv?.parentNode?.insertBefore(appendDiv, targetDiv?.nextSibling);
